@@ -1,25 +1,44 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import HomePage from '../views/home/HomePage'
+import LoginPage from '../views/Login/LoginPage'
+import RegPage from '../views/Login/RegPage'
 
 const routes = [
   {
     path: '/',
-    name: 'home',
-    component: HomeView
+    name: 'HomePage',
+    component: HomePage
   },
   {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+    path: '/login',
+    name: 'LoginPage',
+    component: LoginPage,
+    beforeEnter (to, from, next) {
+      const isLogin = localStorage.isLogin
+      isLogin ? next({ name: 'HomePage' }) : next()
+    }
+  },
+  {
+    path: '/register',
+    name: 'RegPage',
+    component: RegPage,
+    beforeEnter (to, from, next) {
+      const isLogin = localStorage.isLogin
+      isLogin ? next({ name: 'HomePage' }) : next()
+    }
   }
 ]
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  const isLogin = localStorage.isLogin
+  const { name } = to
+  const isLoginOrisRegister = (name === 'LoginPage' || name === 'RegPage');
+  (isLogin || isLoginOrisRegister) ? next() : next({ name: 'LoginPage' })
 })
 
 export default router
