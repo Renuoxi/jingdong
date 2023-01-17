@@ -2,33 +2,60 @@
   <div class="wrapper">
     <img class="wrapper__img" src="http://www.dell-lee.com/imgs/vue3/user.png" >
     <div class="wrapper__input">
-      <input class="input__content" placeholder="请输入用户名" type="text"/>
+      <input class="input__content" placeholder="请输入用户名" type="text" v-model="data.username" />
     </div>
     <div class="wrapper__input">
-      <input class="input__content" placeholder="请输密码"  type="password"/>
+      <input class="input__content" placeholder="请输密码"  type="password" v-model="data.password" />
     </div>
     <div class="wrapper__sign" @click="handleLogin">登录</div>
     <div class="wrapper__register">
       <span @click="handleRegJump">立即注册</span><span class="register__span">|</span> <span>忘记密码</span>
     </div>
   </div>
+  <ToastPage v-if="data.showToast"  :toastmessage = "data.toastMessage" />
 </template>
 
 <script>
+import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
+import ToastPage from '@/components/ToastPage.vue'
+
+axios.defaults.headers.post['Content-Type'] = 'application/json'
 
 export default {
   name: 'LoginPage',
+  components: { ToastPage },
   setup () {
+    const data = reactive({
+      username: '',
+      password: '',
+      showToast: false,
+      toastMessage: ''
+    })
+    const urlApi = 'https://www.fastmock.site/mock1/ae8e9031947a302fed5f92425995aa19/jd/api/user/login'
     const router = useRouter()
-    const handleLogin = () => {
-      localStorage.isLogin = true
-      router.push({ name: 'HomePage' })
+    const handleLogin = async () => {
+      try {
+        const result = await axios.post(urlApi, {
+          username: data.username,
+          password: data.password
+        })
+        if (result.data.errno === 0) {
+          localStorage.isLogin = true
+          router.push({ name: 'HomePage' })
+        } else {
+          alert('登录失败')
+        }
+      } catch (e) {
+        data.showToast = true
+        data.toastMessage = '请求失败'
+      }
     }
     const handleRegJump = () => {
       router.push({ name: 'RegPage' })
     }
-    return { handleLogin, handleRegJump }
+    return { handleLogin, handleRegJump, data }
   }
 }
 </script>
