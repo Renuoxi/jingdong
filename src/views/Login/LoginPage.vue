@@ -33,8 +33,17 @@ export default {
       showToast: false,
       toastMessage: ''
     })
-    const urlApi = 'https://www.fastmock.site/mock1/ae8e9031947a302fed5f92425995aa19/jd/api/user/login'
+    const urlApi = 'https://www.fastmock.site/mock/ae8e9031947a302fed5f92425995aa19/jd/api/user/login'
     const router = useRouter()
+    const showToast = (message) => {
+      data.showToast = true
+      data.toastMessage = message
+      setTimeout(() => {
+        data.showToast = false
+        data.toastMessage = ''
+      }, 2000)
+    }
+
     const handleLogin = async () => {
       try {
         const result = await axios.post(urlApi, {
@@ -45,11 +54,10 @@ export default {
           localStorage.isLogin = true
           router.push({ name: 'HomePage' })
         } else {
-          alert('登录失败')
+          showToast('登录失败')
         }
       } catch (e) {
-        data.showToast = true
-        data.toastMessage = '请求失败'
+        showToast('请求失败')
       }
     }
     const handleRegJump = () => {
