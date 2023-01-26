@@ -1,32 +1,90 @@
 <template>
   <div class="wrapper">
-    <ShopIonfo  :item="item" :hiderBorder= true />
+    <div class="top__style">
+      <div class="style__back iconfont" @click="handleBack" >&#xe601;</div>
+      <div class="search">
+          <span class="iconfont">&#xe86e;</span>
+          <input class="input__content" placeholder="山姆会员商店优惠商品" type="text"  />
+      </div>
+    </div>
+    <ShopIonfo  :item="data.item" :hiderBorder= true />
   </div>
 </template>
 
 <script>
+import { reactive } from 'vue'
 import ShopIonfo from '../../components/ShopInfo.vue'
+import { useRouter, useRoute } from 'vue-router'
+import { get } from '../../utils/request'
 
+const useShopInfoEffect = () => {
+  const route = useRoute()
+  const data = reactive({ item: {} })
+  const getShopItem = async () => {
+    const result = await get(`/api/shop/${route.params.id}`)
+
+    if (result?.errno === 0 && result?.data) {
+      data.item = result.data
+    }
+  }
+  return (data, getShopItem)
+}
 export default {
   name: 'ShopPage',
   components: { ShopIonfo },
   setup () {
-    const item = {
-      expressLimit: 0,
-      expressPrice: 5,
-      imgUrl: 'http://www.dell-lee.com/imgs/vue3/near.png',
-      name: '沃尔玛',
-      sales: 10000,
-      slogan: 'VIP尊享满89元减4元运费券',
-      _id: '1'
+    const { data, getShopItem } = useShopInfoEffect()
+    getShopItem()
+    const router = useRouter()
+    const handleBack = () => {
+      router.back()
     }
-    return { item }
+    return { data, handleBack }
   }
 }
 </script>
 
-<style style="scss" scoped>
+<style lang="scss" scoped>
 .wrapper{
   padding:0 .18rem;
 }
+.top__style{
+  display: flex;
+  align-items: center;
+  .style__back{
+    font-size: .26rem;
+    color: #B6B6B6 ;
+  }
+  .iconfont{
+      top:.02rem;
+    }
+}
+
+.search{
+    flex: 1;
+    margin: .16rem 0;
+    line-height: .32rem;
+    background: #f5f5f5;
+    border-radius: 16rem;
+    color: #B7B7B7;
+    font-size: .14rem;
+    .iconfont{
+      display: inline-block;
+      position: relative;
+      padding: 0 .08rem 0 .14rem;
+      top:.02rem;
+    }
+    .input__content{
+      width: 84%;
+      margin: 0 auto;
+      background: none;
+      outline: none;
+      border: 0;
+      line-height: .32rem;
+      color: rgba(0,0,0,0.50);
+      &::placeholder{
+        color: rgba(0,0,0,0.50);
+      }
+    }
+  }
 </style>

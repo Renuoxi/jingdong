@@ -5,7 +5,8 @@
           <span class="iconfont position_notice">&#xe63f;</span>
         </div>
         <div class="search">
-          <span class="iconfont">&#xe86e;</span> 山姆会员商店优惠商品
+          <span class="iconfont">&#xe86e;</span>
+          <input class="input__content" placeholder="山姆会员商店优惠商品" type="text"  />
         </div>
         <div class="banner">
           <img class="banner__img" src="http://www.dell-lee.com/imgs/vue3/banner.jpg" >
@@ -72,6 +73,18 @@ export default {
       position: relative;
       top:.02rem;
       padding: 0 .08rem 0 .14rem;
+    }
+    .input__content{
+      width: 84%;
+      margin: 0 auto;
+      background: none;
+      outline: none;
+      border: 0;
+      line-height: .44rem;
+      color: rgba(0,0,0,0.50);
+      &::placeholder{
+        color: rgba(0,0,0,0.50);
+      }
     }
   }
 .banner{
