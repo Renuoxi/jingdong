@@ -5,7 +5,7 @@
       <input class="input__content" placeholder="请输入用户名" type="text" v-model="data.username" />
     </div>
     <div class="wrapper__input">
-      <input class="input__content" placeholder="请输密码"  type="password" v-model="data.password" />
+      <input class="input__content" placeholder="请输密码"  type="password" v-model="data.password" autocomplete="new-password" />
     </div>
     <div class="wrapper__sign" @click="handleLogin">登录</div>
     <div class="wrapper__register">
@@ -18,10 +18,8 @@
 <script>
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import { post } from '../../utils/request'
 import ToastPage from '@/components/ToastPage.vue'
-
-axios.defaults.headers.post['Content-Type'] = 'application/json'
 
 export default {
   name: 'LoginPage',
@@ -33,7 +31,6 @@ export default {
       showToast: false,
       toastMessage: ''
     })
-    const urlApi = 'https://www.fastmock.site/mock/ae8e9031947a302fed5f92425995aa19/jd/api/user/login'
     const router = useRouter()
     const showToast = (message) => {
       data.showToast = true
@@ -46,7 +43,7 @@ export default {
 
     const handleLogin = async () => {
       try {
-        const result = await axios.post(urlApi, {
+        const result = await post('/api/user/login', {
           username: data.username,
           password: data.password
         })
@@ -63,6 +60,7 @@ export default {
     const handleRegJump = () => {
       router.push({ name: 'RegPage' })
     }
+
     return { handleLogin, handleRegJump, data }
   }
 }
