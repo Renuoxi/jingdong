@@ -8,32 +8,30 @@
       </div>
     </div>
     <ShopIonfo  :item="data.item" :hiderBorder= true />
+    <ShopContennt/>
   </div>
 </template>
 
 <script>
 import { reactive } from 'vue'
-import ShopIonfo from '../../components/ShopInfo.vue'
 import { useRouter, useRoute } from 'vue-router'
 import { get } from '../../utils/request'
+import ShopIonfo from '../../components/ShopInfo.vue'
+import ShopContennt from './ShopContennt.vue'
 
-const useShopInfoEffect = () => {
-  const route = useRoute()
-  const data = reactive({ item: {} })
-  const getShopItem = async () => {
-    const result = await get(`/api/shop/${route.params.id}`)
-
-    if (result?.errno === 0 && result?.data) {
-      data.item = result.data
-    }
-  }
-  return (data, getShopItem)
-}
 export default {
   name: 'ShopPage',
-  components: { ShopIonfo },
+  components: { ShopIonfo, ShopContennt },
   setup () {
-    const { data, getShopItem } = useShopInfoEffect()
+    const route = useRoute()
+    const data = reactive({ item: {} })
+    const getShopItem = async () => {
+      const result = await get(`/api/shop/${route.params.id}`)
+
+      if (result?.errno === 0 && result?.data) {
+        data.item = result.data
+      }
+    }
     getShopItem()
     const router = useRouter()
     const handleBack = () => {
