@@ -21,8 +21,8 @@
             </div>
             <div class="item__number">
                 <span class="number__left"> - </span>
-                0
-                <span class="number__right"> + </span>
+                <span class="number"> {{cartList?.[shopId]?.[item._id]?.count || 0 }} </span>
+                <span class="number__right" @click="() => { addItemToCart(shopId, item._id, item) }"> + </span>
             </div>
         </div>
     </div>
@@ -32,39 +32,52 @@
 <script>
 import { reactive, toRefs } from 'vue'
 import { get } from '../../utils/request'
+import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
 
+const categories = [
+  { name: '全部商品', tab: 'all' },
+  { name: '秒杀', tab: 'seckill' },
+  { name: '新鲜水果', tab: 'fruit' }
+]
+const useCartEffect = () => {
+  const store = useStore()
+  const { cartList } = toRefs(store.state)
+  return { cartList, store }
+}
 export default {
   name: 'ShopContennt',
-  props: ['id'],
   setup () {
-    const categories = [{
-      name: '全部商品',
-      tab: 'all'
-    }, {
-      name: '秒杀',
-      tab: 'seckill'
-    }, {
-      name: '新鲜水果',
-      tab: 'fruit'
-    }]
+    // 数据的接受地
     const data = reactive({
       currentTab: categories[0].tab,
       countList: []
     })
+    const { countList, currentTab } = toRefs(data)
+    // 获取页面需要的数据
+    const router = useRoute()
+    const shopId = router.params.id
     const getContentData = async (tab) => {
-      const result = await get(`/api/shop/${'id'}/products`, { tab })
-      console.log(result)
+      const result = await get(`/api/shop/${shopId}/products`, { tab })
+      // console.log(result)
       if (result?.errno === 0 && result?.data?.length) {
         data.countList = result.data
       }
     }
-    getContentData('all')
+    getContentData(currentTab, shopId)
+    // 选项卡点击
     const handleClickTab = (tab) => {
       getContentData(tab)
       data.currentTab = tab
     }
-    const { countList, currentTab } = toRefs(data)
-    return { categories, countList, currentTab, handleClickTab }
+    // vuex实现商品功能，购物车
+    const { cartList, store } = useCartEffect()
+    const addItemToCart = (shopId, productId, productInfo) => {
+      store.commit('addItemToCart', { shopId, productId, productInfo })
+      // console.log(shopId, productId, productInfo)
+    }
+    // 导出所有的数据
+    return { categories, countList, currentTab, handleClickTab, shopId, cartList, addItemToCart }
   }
 }
 </script>
@@ -146,6 +159,11 @@ export default {
     position:absolute;
     right: .16rem;
     bottom: .12rem;
+    .number {
+        display: inline-block;
+        width:.34rem;
+        text-align: center;
+    }
     .number__left, .number__right{
         display: inline-block;
         width: .20rem;
@@ -158,12 +176,10 @@ export default {
     .number__left{
         border: .01rem solid #666;
         color: #666;
-        margin-right: .08rem;
     }
     .number__right{
         color: #fff;
         background: #0091FF;
-        margin-left: .08rem;
     }
 }
 </style>

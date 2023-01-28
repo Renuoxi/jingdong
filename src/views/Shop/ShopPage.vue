@@ -8,7 +8,8 @@
       </div>
     </div>
     <ShopIonfo  :item="data.item" :hiderBorder= true />
-    <ShopContennt/>
+    <ShopContennt />
+    <CartPage/>
   </div>
 </template>
 
@@ -18,10 +19,11 @@ import { useRouter, useRoute } from 'vue-router'
 import { get } from '../../utils/request'
 import ShopIonfo from '../../components/ShopInfo.vue'
 import ShopContennt from './ShopContennt.vue'
+import CartPage from './CartPage.vue'
 
 export default {
   name: 'ShopPage',
-  components: { ShopIonfo, ShopContennt },
+  components: { ShopIonfo, ShopContennt, CartPage },
   setup () {
     const route = useRoute()
     const data = reactive({ item: {} })
