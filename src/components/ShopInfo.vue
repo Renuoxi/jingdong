@@ -10,7 +10,7 @@
           </div>
           <p class="txt__highlight">{{  item.slogan }}</p>
         </div>
-      </div>
+    </div>
 </template>
 
 <script>

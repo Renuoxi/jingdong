@@ -20,9 +20,9 @@
                 </div>
             </div>
             <div class="item__number">
-                <span class="number__left"> - </span>
+                <span class="number__left" @click="() => { changeItemToCart(shopId, item._id, item, -1) } "> - </span>
                 <span class="number"> {{cartList?.[shopId]?.[item._id]?.count || 0 }} </span>
-                <span class="number__right" @click="() => { addItemToCart(shopId, item._id, item) }"> + </span>
+                <span class="number__right" @click="() => { changeItemToCart(shopId, item._id, item, 1) }"> + </span>
             </div>
         </div>
     </div>
@@ -40,11 +40,7 @@ const categories = [
   { name: '秒杀', tab: 'seckill' },
   { name: '新鲜水果', tab: 'fruit' }
 ]
-const useCartEffect = () => {
-  const store = useStore()
-  const { cartList } = toRefs(store.state)
-  return { cartList, store }
-}
+
 export default {
   name: 'ShopContennt',
   setup () {
@@ -71,13 +67,14 @@ export default {
       data.currentTab = tab
     }
     // vuex实现商品功能，购物车
-    const { cartList, store } = useCartEffect()
-    const addItemToCart = (shopId, productId, productInfo) => {
-      store.commit('addItemToCart', { shopId, productId, productInfo })
-      // console.log(shopId, productId, productInfo)
+    const store = useStore()
+    const { cartList } = toRefs(store.state)
+    const changeItemToCart = (shopId, productId, productInfo, num) => {
+      store.commit('changeItemToCart', { shopId, productId, productInfo, num })
+      return { changeItemToCart }
     }
     // 导出所有的数据
-    return { categories, countList, currentTab, handleClickTab, shopId, cartList, addItemToCart }
+    return { categories, countList, currentTab, handleClickTab, shopId, cartList, changeItemToCart }
   }
 }
 </script>
