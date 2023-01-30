@@ -22,9 +22,28 @@ export default createStore({
       }
       console.log(product)
       product.count = product.count + num
+      if (num > 0) { product.check = true }
       if (product.count < 0) { product.count = 0 }
       shopInfo[productId] = product
       state.cartList[shopId] = shopInfo
+    },
+    handleChangChenck (state, payload) {
+      const { shopId, productid } = payload
+      const product = state.cartList[shopId][productid]
+      product.check = !product.check
+    },
+    handleCleanProduct (state, payload) {
+      const { shopId } = payload
+      state.cartList[shopId] = {}
+    },
+    ChangeAll (state, payload) {
+      const { shopId } = payload
+      const productList = state.cartList[shopId]
+      if (productList) {
+        for (const i in productList) {
+          productList[i].check = true
+        }
+      }
     }
   },
   actions: {

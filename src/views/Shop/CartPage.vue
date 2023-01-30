@@ -1,8 +1,24 @@
 <template>
+   <div class="mask" v-show="cartShow" />
   <div class="cart">
-    <div class="content__right">
+    <div class="content__right" v-show="cartShow">
+         <div class="right__header">
+          <div class="header__icon iconfont"
+          v-html=" allCheckIcon ? '&#xe650;' : '&#xe656;'  "
+          @click="() => {ChangeAll(shopId)}"
+          >
+          </div>
+          <span class="header__all">全选</span>
+          <div  class="header__text"
+          @click="() => {handleCleanProduct(shopId)}"
+          >清空购物车</div>
+         </div>
         <div class="right__item" v-for="item in countList " :key="item._id" v-show="item.count>0" >
-            <input type="checkbox" class="checktype" >
+
+            <div class="item__icon iconfont"
+            v-html="item.check ? '&#xe656;' : '&#xe650;' "
+            @click="() => {handleChangChenck(shopId, item._id)}"
+            >  </div>
             <img class="item__imgTwo" :src=item.imgUrl>
             <div class="item__txtTwo"  >
                 <div class="txtTwo__title">{{item.name}}</div>
@@ -19,7 +35,7 @@
         </div>
     </div>
   <div class="cartStyle">
-    <img class="cart__img" src="../../../../../../basket@2x.png"/>
+    <img class="cart__img" src="../../../../../../basket@2x.png" @click="handelShowCart"/>
     <div class="cart__icon">{{ total  }}</div>
     <div class="cart__price">总价: <span class="price__number">￥{{totalPrice}}</span></div>
     <span class="cart__checkout">去结算</span>
@@ -29,7 +45,7 @@
 </template>
 
 <script>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 
@@ -40,6 +56,11 @@ export default {
     const route = useRoute()
     const shopId = route.params.id
     const cartList = store.state.cartList
+    // 确定组件显示隐藏
+    const cartShow = ref(false)
+    const handelShowCart = () => {
+      cartShow.value = !cartShow.value
+    }
     // 计算购物车内容数量
     const total = computed(() => {
       const productList = cartList[shopId]
@@ -59,28 +80,94 @@ export default {
       if (productList) {
         for (const i in productList) {
           const productInfo = productList[i]
-          count += (productInfo.count * productInfo.price)
+          if (productInfo.check) {
+            count += (productInfo.count * productInfo.price)
+          }
         }
       }
       return count.toFixed(2)
+    })
+    // 计算图标是否被选择
+    // 计算价格
+    const allCheckIcon = computed(() => {
+      const productList = cartList[shopId]
+      let flag = true
+      if (productList) {
+        for (const i in productList) {
+          const productInfo = productList[i]
+          if (productInfo.count > 0 && productInfo.check) {
+            flag = false
+          }
+        }
+      }
+      return flag
     })
     // 获取购物车物品列表
     const countList = computed(() => {
       const productList = cartList[shopId]
       return productList
     })
-    return { total, totalPrice, countList }
+    // 增减物品数量
+    const changeItemToCart = (shopId, productId, productInfo, num) => {
+      store.commit('changeItemToCart', { shopId, productId, productInfo, num })
+      return { changeItemToCart }
+    }
+    // 更改按钮选中效果
+    const handleChangChenck = (shopId, productid) => {
+      store.commit('handleChangChenck', { shopId, productid })
+    }
+    // 清空购物车
+    const handleCleanProduct = (shopId) => {
+      store.commit('handleCleanProduct', { shopId })
+    }
+    const ChangeAll = (shopId) => {
+      store.commit('ChangeAll', { shopId })
+    }
+    return { total, totalPrice, countList, shopId, changeItemToCart, handleChangChenck, handleCleanProduct, allCheckIcon, ChangeAll, cartShow, handelShowCart }
   }
 }
 </script>
 <style lang="scss" scoped>
 @import '../../style/minxin.scss';
 
+.iconfont{
+  color:#0091FF;
+  line-height: .5rem;
+  font-size: .18rem;
+}
+.mask{
+  position:fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top:0;
+  background: rgba(0,0,0,0.50);
+  z-index: 1;
+}
 .cart{
   position:absolute;
   bottom: 0;
   left: 0;
   right: 0;
+  z-index: 2;
+}
+.right__header{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: .12rem .16rem;
+  border-bottom: 1px solid rgb(241, 241, 241);
+  font-size: .14rem;
+  color: #333333;
+  position: relative;
+}
+.header__icon{
+  line-height: .21rem;
+}
+.header__all{
+  position: absolute;
+  left: .38rem;
 }
 .cartStyle{
     height: .49rem;
@@ -88,6 +175,7 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background: #fff;
 }
 .checktype{
   border-radius: 50%;
@@ -136,13 +224,13 @@ export default {
 }
 .right__item{
     display: flex;
-    padding: .12rem .16rem 0.12rem .16rem;
+    padding: .12rem .16rem;
     border-bottom: 1px solid  #F1F1F1;
     position: relative;
     .item__imgTwo {
         width: 0.46rem;
         height: 0.46rem;
-        margin-right: 0.16rem;
+        margin: 0 0.16rem;
     }
     .item__txtTwo{
         flex: 1;
